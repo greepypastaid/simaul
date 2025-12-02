@@ -10,6 +10,7 @@ enum OrderStatus: string
     case DRYING = 'DRYING';
     case IRONING = 'IRONING';
     case COMPLETED = 'COMPLETED';
+    case READY = 'READY';
     case TAKEN = 'TAKEN';
     case CANCELLED = 'CANCELLED';
 
@@ -22,6 +23,7 @@ enum OrderStatus: string
             self::DRYING => 'Dikeringkan',
             self::IRONING => 'Disetrika',
             self::COMPLETED => 'Selesai',
+            self::READY => 'Siap Ambil',
             self::TAKEN => 'Diambil',
             self::CANCELLED => 'Dibatalkan',
         };
@@ -30,14 +32,20 @@ enum OrderStatus: string
     public function allowedTransitions(): array
     {
         return match($this) {
-            self::BOOKED => [self::PENDING, self::CANCELLED],
+            self::BOOKED => [self::PENDING, self::WASHING, self::CANCELLED],
             self::PENDING => [self::WASHING, self::CANCELLED],
-            self::WASHING => [self::DRYING, self::CANCELLED],
-            self::DRYING => [self::IRONING, self::COMPLETED, self::CANCELLED],
-            self::IRONING => [self::COMPLETED, self::CANCELLED],
-            self::COMPLETED => [self::TAKEN, self::CANCELLED],
+            self::WASHING => [self::DRYING, self::IRONING, self::COMPLETED, self::CANCELLED],
+            self::DRYING => [self::IRONING, self::COMPLETED, self::READY, self::CANCELLED],
+            self::IRONING => [self::COMPLETED, self::READY, self::CANCELLED],
+            self::COMPLETED => [self::READY, self::TAKEN, self::CANCELLED],
+            self::READY => [self::TAKEN, self::CANCELLED],
             self::TAKEN, self::CANCELLED => [],
         };
+    }
+
+    public function transitions(): array
+    {
+        return $this->allowedTransitions();
     }
 
     public function canTransitionTo(self $status): bool

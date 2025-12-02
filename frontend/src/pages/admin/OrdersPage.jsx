@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useSearchParams, Link } from 'react-router-dom';
 import { 
@@ -45,6 +45,7 @@ const ORDER_STATUSES = [
   { value: 'DRYING', label: 'Dikeringkan' },
   { value: 'IRONING', label: 'Disetrika' },
   { value: 'COMPLETED', label: 'Selesai' },
+  { value: 'READY', label: 'Siap Ambil' },
   { value: 'TAKEN', label: 'Diambil' },
   { value: 'CANCELLED', label: 'Dibatalkan' },
 ];
@@ -57,12 +58,15 @@ const PAYMENT_STATUSES = [
 ];
 
 const STATUS_TRANSITIONS = {
-  BOOKED: ['PENDING', 'CANCELLED'],
+  BOOKED: ['PENDING', 'WASHING', 'CANCELLED'],
   PENDING: ['WASHING', 'CANCELLED'],
-  WASHING: ['DRYING', 'CANCELLED'],
-  DRYING: ['IRONING', 'COMPLETED', 'CANCELLED'],
-  IRONING: ['COMPLETED', 'CANCELLED'],
-  COMPLETED: ['TAKEN', 'CANCELLED'],
+  WASHING: ['DRYING', 'IRONING', 'COMPLETED', 'CANCELLED'],
+  DRYING: ['IRONING', 'COMPLETED', 'READY', 'CANCELLED'],
+  IRONING: ['COMPLETED', 'READY', 'CANCELLED'],
+  COMPLETED: ['READY', 'TAKEN', 'CANCELLED'],
+  READY: ['TAKEN', 'CANCELLED'],
+  TAKEN: [],
+  CANCELLED: [],
 };
 
 export default function OrdersPage() {
@@ -328,6 +332,7 @@ function StatusBadge({ status }) {
     DRYING: { variant: 'primary', label: 'Dikeringkan' },
     IRONING: { variant: 'primary', label: 'Disetrika' },
     COMPLETED: { variant: 'success', label: 'Selesai' },
+    READY: { variant: 'success', label: 'Siap Ambil' },
     TAKEN: { variant: 'success', label: 'Diambil' },
     CANCELLED: { variant: 'danger', label: 'Dibatalkan' },
   };
@@ -478,18 +483,35 @@ function UpdateStatusModal({ open, onClose, order }) {
   const [newStatus, setNewStatus] = useState('');
   const queryClient = useQueryClient();
 
+  // Reset newStatus when modal opens/closes or order changes
+  useEffect(() => {
+    if (open) {
+      setNewStatus('');
+    }
+  }, [open, order]);
+
   const mutation = useMutation({
     mutationFn: (status) => orderService.updateStatus(order.id, { status }),
     onSuccess: () => {
       queryClient.invalidateQueries(['orders']);
       queryClient.invalidateQueries(['dashboard']);
+      setNewStatus('');
       onClose();
+    },
+    onError: (error) => {
+      console.error('Error updating status:', error);
+      alert(error.response?.data?.message || 'Gagal mengupdate status');
     },
   });
 
   if (!order) return null;
 
   const allowedTransitions = STATUS_TRANSITIONS[order.status] || [];
+  
+  // Debug logging
+  console.log('Current order status:', order.status);
+  console.log('Allowed transitions:', allowedTransitions);
+  console.log('Selected new status:', newStatus);
 
   return (
     <Modal open={open} onClose={onClose}>
@@ -510,21 +532,27 @@ function UpdateStatusModal({ open, onClose, order }) {
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Status Baru
           </label>
-          <div className="grid grid-cols-2 gap-2">
-            {allowedTransitions.map((status) => (
-              <button
-                key={status}
-                onClick={() => setNewStatus(status)}
-                className={`p-3 rounded-lg border-2 text-left transition-colors ${
-                  newStatus === status
-                    ? 'border-blue-500 bg-blue-50'
-                    : 'border-gray-200 hover:border-gray-300'
-                }`}
-              >
-                <StatusBadge status={status} />
-              </button>
-            ))}
-          </div>
+          {allowedTransitions.length > 0 ? (
+            <div className="grid grid-cols-2 gap-2">
+              {allowedTransitions.map((status) => (
+                <button
+                  key={status}
+                  onClick={() => setNewStatus(status)}
+                  className={`p-3 rounded-lg border-2 text-left transition-colors ${
+                    newStatus === status
+                      ? 'border-blue-500 bg-blue-50'
+                      : 'border-gray-200 hover:border-gray-300'
+                  }`}
+                >
+                  <StatusBadge status={status} />
+                </button>
+              ))}
+            </div>
+          ) : (
+            <div className="bg-gray-50 rounded-lg p-4 text-center text-gray-500">
+              Status pesanan sudah final, tidak dapat diubah lagi.
+            </div>
+          )}
         </div>
       </ModalBody>
       <ModalFooter>
