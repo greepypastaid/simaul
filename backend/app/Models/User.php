@@ -47,18 +47,36 @@ class User extends Authenticatable
         return $this->hasMany(OrderHistory::class, 'created_by');
     }
 
+    /**
+     * Check if user is owner (has full access to all features)
+     * Owner combines: admin, staff/operational, and cashier roles
+     */
+    public function isOwner(): bool
+    {
+        return $this->role === UserRole::OWNER;
+    }
+
+    /**
+     * Check if user has admin privileges (owner has all privileges)
+     */
     public function isAdmin(): bool
     {
-        return $this->role === UserRole::ADMIN;
+        return $this->isOwner();
     }
 
+    /**
+     * Check if user has staff privileges (owner has all privileges)
+     */
     public function isStaff(): bool
     {
-        return $this->role === UserRole::STAFF;
+        return $this->isOwner();
     }
 
+    /**
+     * Check if user has cashier privileges (owner has all privileges)
+     */
     public function isCashier(): bool
     {
-        return $this->role === UserRole::CASHIER;
+        return $this->isOwner();
     }
 }

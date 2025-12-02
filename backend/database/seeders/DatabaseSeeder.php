@@ -33,31 +33,16 @@ class DatabaseSeeder extends Seeder
 
     private function seedUsers(): void
     {
+        // Single owner account with full access (admin + kasir + operasional)
         User::create([
-            'name' => 'Admin SIMAUL',
-            'email' => 'admin@simaul.test',
+            'name' => 'Owner SIMAUL',
+            'email' => 'owner@simaul.test',
             'password' => Hash::make('password'),
-            'role' => UserRole::ADMIN,
+            'role' => UserRole::OWNER,
             'is_active' => true,
         ]);
 
-        User::create([
-            'name' => 'Staff Kasir',
-            'email' => 'kasir@simaul.test',
-            'password' => Hash::make('password'),
-            'role' => UserRole::STAFF,
-            'is_active' => true,
-        ]);
-
-        User::create([
-            'name' => 'Staff Operasional',
-            'email' => 'operasional@simaul.test',
-            'password' => Hash::make('password'),
-            'role' => UserRole::STAFF,
-            'is_active' => true,
-        ]);
-
-        $this->command->info('✓ Users seeded');
+        $this->command->info('✓ Owner user seeded (full access: admin, kasir, operasional)');
     }
 
     private function seedMaterials(): void
