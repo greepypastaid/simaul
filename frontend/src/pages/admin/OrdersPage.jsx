@@ -13,8 +13,11 @@ import {
   XCircle,
   Loader,
   Package,
+  Printer,
 } from 'lucide-react';
 import { orderService } from '@/services/api';
+import { PaymentMethodSelector, PaymentStatusSelector } from '@/components';
+import { formatCurrency, formatDate, formatDateTime, printReceipt } from '@/utils';
 import { 
   Button, 
   Spinner,
@@ -33,7 +36,6 @@ import {
   TableCell,
   Pagination,
 } from '@/components/ui';
-import { formatCurrency, formatDate, formatDateTime } from '@/utils';
 
 const ORDER_STATUSES = [
   { value: '', label: 'Semua Status' },
@@ -250,6 +252,13 @@ export default function OrdersPage() {
                     <TableCell>
                       <div className="flex items-center gap-1">
                         <button
+                          onClick={() => printReceipt(order)}
+                          className="p-2 text-gray-500 hover:text-green-600 hover:bg-green-50 rounded-lg"
+                          title="Cetak Label"
+                        >
+                          <Printer className="w-4 h-4" />
+                        </button>
+                        <button
                           onClick={() => handleViewDetail(order)}
                           className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg"
                           title="Lihat Detail"
@@ -442,6 +451,14 @@ function OrderDetailModal({ open, onClose, order, onUpdateStatus, onUpdatePaymen
         )}
       </ModalBody>
       <ModalFooter>
+        <Button 
+          variant="outline" 
+          onClick={() => printReceipt(order)}
+          className="mr-auto"
+        >
+          <Printer className="w-4 h-4 mr-2" />
+          Cetak Label
+        </Button>
         {order.payment_status !== 'PAID' && (
           <Button variant="outline" onClick={onUpdatePayment}>
             Update Pembayaran
@@ -527,10 +544,8 @@ function UpdateStatusModal({ open, onClose, order }) {
 }
 
 function UpdatePaymentModal({ open, onClose, order }) {
-  const [paymentData, setPaymentData] = useState({
-    amount: '',
-    method: 'CASH',
-  });
+  const [paymentMethod, setPaymentMethod] = useState('CASH');
+  const [paymentStatus, setPaymentStatus] = useState('PAID');
   const queryClient = useQueryClient();
 
   const mutation = useMutation({
@@ -548,9 +563,14 @@ function UpdatePaymentModal({ open, onClose, order }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    
+    // Jika status PAID, otomatis bayar penuh. Jika UNPAID, tidak update amount
+    const amount = paymentStatus === 'PAID' ? remaining : 0;
+    
     mutation.mutate({
-      amount: parseFloat(paymentData.amount),
-      payment_method: paymentData.method,
+      amount,
+      payment_method: paymentMethod,
+      payment_status: paymentStatus,
     });
   };
 
@@ -561,6 +581,7 @@ function UpdatePaymentModal({ open, onClose, order }) {
       </ModalHeader>
       <form onSubmit={handleSubmit}>
         <ModalBody className="space-y-4">
+          {/* Summary */}
           <div className="bg-gray-50 rounded-lg p-4">
             <div className="flex justify-between mb-2">
               <span className="text-gray-500">Total</span>
@@ -576,38 +597,27 @@ function UpdatePaymentModal({ open, onClose, order }) {
             </div>
           </div>
 
-          <div className="space-y-1">
-            <label className="block text-sm font-medium text-gray-700">
-              Jumlah Pembayaran
-            </label>
-            <input
-              type="number"
-              value={paymentData.amount}
-              onChange={(e) => setPaymentData({ ...paymentData, amount: e.target.value })}
-              placeholder="0"
-              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required
-            />
-            <button
-              type="button"
-              onClick={() => setPaymentData({ ...paymentData, amount: remaining.toString() })}
-              className="text-sm text-blue-600 hover:underline"
-            >
-              Bayar Lunas ({formatCurrency(remaining)})
-            </button>
-          </div>
-
-          <Select
-            label="Metode Pembayaran"
-            value={paymentData.method}
-            onChange={(e) => setPaymentData({ ...paymentData, method: e.target.value })}
-            options={[
-              { value: 'CASH', label: 'Tunai' },
-              { value: 'TRANSFER', label: 'Transfer' },
-              { value: 'QRIS', label: 'QRIS' },
-              { value: 'OTHER', label: 'Lainnya' },
-            ]}
+          {/* Payment Method */}
+          <PaymentMethodSelector
+            value={paymentMethod}
+            onChange={setPaymentMethod}
           />
+
+          {/* Payment Status */}
+          <PaymentStatusSelector
+            value={paymentStatus}
+            onChange={setPaymentStatus}
+          />
+
+          {/* Info */}
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+            <p className="text-sm text-blue-700">
+              {paymentStatus === 'PAID' 
+                ? `✓ Akan mencatat pembayaran sebesar ${formatCurrency(remaining)} dan menandai sebagai LUNAS` 
+                : '⚠ Pesanan akan tetap tercatat sebagai BELUM LUNAS'
+              }
+            </p>
+          </div>
         </ModalBody>
         <ModalFooter>
           <Button type="button" variant="ghost" onClick={onClose}>
