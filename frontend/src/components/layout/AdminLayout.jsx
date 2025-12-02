@@ -15,6 +15,10 @@ import {
   ChevronDown,
   Bell,
   Search,
+  DollarSign,
+  Briefcase,
+  UserCog,
+  FileText,
 } from 'lucide-react';
 
 const navigation = [
@@ -23,6 +27,10 @@ const navigation = [
   { name: 'Pelanggan', href: '/admin/customers', icon: Users },
   { name: 'Layanan', href: '/admin/services', icon: Package },
   { name: 'Material', href: '/admin/materials', icon: Boxes },
+  { name: 'Pengeluaran', href: '/admin/expenses', icon: DollarSign },
+  { name: 'Aset', href: '/admin/assets', icon: Briefcase },
+  { name: 'Karyawan', href: '/admin/employees', icon: UserCog },
+  { name: 'Laporan', href: '/admin/reports', icon: FileText },
   { name: 'Pengaturan', href: '/admin/settings', icon: Settings },
 ];
 

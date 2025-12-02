@@ -23,6 +23,10 @@ import {
   OrdersPage,
   CreateOrderPage,
   SettingsPage,
+  ExpensesPage,
+  AssetsPage,
+  EmployeesPage,
+  ReportsPage,
 } from '@/pages';
 
 const queryClient = new QueryClient({
@@ -91,6 +95,10 @@ function AppContent() {
         <Route path="/admin/customers" element={<CustomersPage />} />
         <Route path="/admin/services" element={<ServicesPage />} />
         <Route path="/admin/materials" element={<MaterialsPage />} />
+        <Route path="/admin/expenses" element={<ExpensesPage />} />
+        <Route path="/admin/assets" element={<AssetsPage />} />
+        <Route path="/admin/employees" element={<EmployeesPage />} />
+        <Route path="/admin/reports" element={<ReportsPage />} />
         <Route path="/admin/settings" element={<SettingsPage />} />
       </Route>
 

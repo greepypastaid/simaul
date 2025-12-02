@@ -5,7 +5,10 @@ namespace App\Http\Controllers\Api\V1;
 use App\Enums\OrderStatus;
 use App\Enums\PaymentStatus;
 use App\Http\Controllers\Api\BaseController;
+use App\Models\Asset;
 use App\Models\Customer;
+use App\Models\Employee;
+use App\Models\Expense;
 use App\Models\Material;
 use App\Models\Order;
 use App\Services\InventoryService;
@@ -24,6 +27,14 @@ class DashboardController extends BaseController
         $today = now()->startOfDay();
         $thisMonth = now()->startOfMonth();
 
+        $monthlyRevenue = Order::where('created_at', '>=', $thisMonth)
+            ->whereIn('status', [OrderStatus::COMPLETED, OrderStatus::TAKEN])
+            ->sum('final_price');
+
+        $monthlyExpenses = Expense::whereMonth('expense_date', now()->month)
+            ->whereYear('expense_date', now()->year)
+            ->sum('amount');
+
         $data = [
             'today' => [
                 'new_orders' => Order::whereDate('created_at', $today)->count(),
@@ -37,9 +48,9 @@ class DashboardController extends BaseController
             ],
             'this_month' => [
                 'total_orders' => Order::where('created_at', '>=', $thisMonth)->count(),
-                'total_revenue' => Order::where('created_at', '>=', $thisMonth)
-                    ->whereIn('status', [OrderStatus::COMPLETED, OrderStatus::TAKEN])
-                    ->sum('final_price'),
+                'total_revenue' => $monthlyRevenue,
+                'total_expenses' => $monthlyExpenses,
+                'net_profit' => $monthlyRevenue - $monthlyExpenses,
                 'new_customers' => Customer::where('created_at', '>=', $thisMonth)->count(),
             ],
             'pending_actions' => [
@@ -57,6 +68,16 @@ class DashboardController extends BaseController
                     ->where('is_active', true)
                     ->select('id', 'name', 'stock_qty', 'min_stock_alert', 'unit')
                     ->get(),
+            ],
+            'quick_stats' => [
+                'total_employees' => Employee::where('status', 'ACTIVE')->count(),
+                'total_assets_value' => Asset::where('status', 'ACTIVE')->sum('purchase_price'),
+                'monthly_expenses_breakdown' => Expense::whereMonth('expense_date', now()->month)
+                    ->whereYear('expense_date', now()->year)
+                    ->select('category', DB::raw('SUM(amount) as total'))
+                    ->groupBy('category')
+                    ->get()
+                    ->mapWithKeys(fn($item) => [$item->category->label() => (float) $item->total]),
             ],
         ];
 

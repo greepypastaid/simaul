@@ -84,6 +84,53 @@ export const bookingService = {
   getServices: () => api.get('/services'),
 };
 
+/**
+ * Expense Service
+ */
+export const expenseService = {
+  getAll: (params) => api.get('/expenses', { params }),
+  getSummary: (params) => api.get('/expenses/summary', { params }),
+  getById: (id) => api.get(`/expenses/${id}`),
+  create: (data) => api.post('/expenses', data),
+  update: (id, data) => api.put(`/expenses/${id}`, data),
+  delete: (id) => api.delete(`/expenses/${id}`),
+};
+
+/**
+ * Asset Service
+ */
+export const assetService = {
+  getAll: (params) => api.get('/assets', { params }),
+  getSummary: () => api.get('/assets/summary'),
+  getById: (id) => api.get(`/assets/${id}`),
+  create: (data) => api.post('/assets', data),
+  update: (id, data) => api.put(`/assets/${id}`, data),
+  delete: (id) => api.delete(`/assets/${id}`),
+};
+
+/**
+ * Employee Service
+ */
+export const employeeService = {
+  getAll: (params) => api.get('/employees', { params }),
+  getById: (id) => api.get(`/employees/${id}`),
+  create: (data) => api.post('/employees', data),
+  update: (id, data) => api.put(`/employees/${id}`, data),
+  delete: (id) => api.delete(`/employees/${id}`),
+  paySalary: (id, data) => api.post(`/employees/${id}/pay-salary`, data),
+};
+
+/**
+ * Report Service
+ */
+export const reportService = {
+  getFinancialSummary: (params) => api.get('/reports/financial-summary', { params }),
+  getInventoryReport: () => api.get('/reports/inventory'),
+  getAssetReport: () => api.get('/reports/assets'),
+  getEmployeeReport: () => api.get('/reports/employees'),
+  getProfitLoss: (params) => api.get('/reports/profit-loss', { params }),
+};
+
 export default {
   dashboard: dashboardService,
   orders: orderService,
@@ -92,4 +139,8 @@ export default {
   materials: materialService,
   tracking: trackingService,
   booking: bookingService,
+  expenses: expenseService,
+  assets: assetService,
+  employees: employeeService,
+  reports: reportService,
 };

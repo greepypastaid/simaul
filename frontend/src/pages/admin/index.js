@@ -5,3 +5,7 @@ export { default as MaterialsPage } from './MaterialsPage';
 export { default as OrdersPage } from './OrdersPage';
 export { default as CreateOrderPage } from './CreateOrderPage';
 export { default as SettingsPage } from './SettingsPage';
+export { default as ExpensesPage } from './ExpensesPage';
+export { default as AssetsPage } from './AssetsPage';
+export { default as EmployeesPage } from './EmployeesPage';
+export { default as ReportsPage } from './ReportsPage';

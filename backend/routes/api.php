@@ -1,11 +1,15 @@
 <?php
 
 use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\Api\V1\AssetController;
 use App\Http\Controllers\Api\V1\BookingController;
 use App\Http\Controllers\Api\V1\CustomerController;
 use App\Http\Controllers\Api\V1\DashboardController;
+use App\Http\Controllers\Api\V1\EmployeeController;
+use App\Http\Controllers\Api\V1\ExpenseController;
 use App\Http\Controllers\Api\V1\MaterialController;
 use App\Http\Controllers\Api\V1\OrderController;
+use App\Http\Controllers\Api\V1\ReportController;
 use App\Http\Controllers\Api\V1\ServiceController;
 use App\Http\Controllers\Api\V1\TrackingController;
 use Illuminate\Support\Facades\Route;
@@ -73,6 +77,41 @@ Route::prefix('v1')->group(function () {
             Route::post('/{material}/add-stock', [MaterialController::class, 'addStock']);
             Route::post('/{material}/adjust-stock', [MaterialController::class, 'adjustStock']);
             Route::post('/{material}/toggle-active', [MaterialController::class, 'toggleActive']);
+        });
+
+        Route::prefix('expenses')->group(function () {
+            Route::get('/', [ExpenseController::class, 'index']);
+            Route::get('/summary', [ExpenseController::class, 'summary']);
+            Route::post('/', [ExpenseController::class, 'store']);
+            Route::get('/{expense}', [ExpenseController::class, 'show']);
+            Route::put('/{expense}', [ExpenseController::class, 'update']);
+            Route::delete('/{expense}', [ExpenseController::class, 'destroy']);
+        });
+
+        Route::prefix('assets')->group(function () {
+            Route::get('/', [AssetController::class, 'index']);
+            Route::get('/summary', [AssetController::class, 'summary']);
+            Route::post('/', [AssetController::class, 'store']);
+            Route::get('/{asset}', [AssetController::class, 'show']);
+            Route::put('/{asset}', [AssetController::class, 'update']);
+            Route::delete('/{asset}', [AssetController::class, 'destroy']);
+        });
+
+        Route::prefix('employees')->group(function () {
+            Route::get('/', [EmployeeController::class, 'index']);
+            Route::post('/', [EmployeeController::class, 'store']);
+            Route::get('/{employee}', [EmployeeController::class, 'show']);
+            Route::put('/{employee}', [EmployeeController::class, 'update']);
+            Route::delete('/{employee}', [EmployeeController::class, 'destroy']);
+            Route::post('/{employee}/pay-salary', [EmployeeController::class, 'paySalary']);
+        });
+
+        Route::prefix('reports')->group(function () {
+            Route::get('/financial-summary', [ReportController::class, 'financialSummary']);
+            Route::get('/inventory', [ReportController::class, 'inventoryReport']);
+            Route::get('/assets', [ReportController::class, 'assetReport']);
+            Route::get('/employees', [ReportController::class, 'employeeReport']);
+            Route::get('/profit-loss', [ReportController::class, 'profitLoss']);
         });
     });
 });
