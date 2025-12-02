@@ -1,91 +1,74 @@
+import { Link } from 'react-router-dom';
 import { useAuthStore } from '@/stores';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, Button } from '@/components/ui';
 import { formatDate, getInitials } from '@/utils';
+import { ShoppingCart, Users, Package, Settings } from 'lucide-react';
 
-/**
- * Dashboard Page
- * Protected page for authenticated users
- */
 function DashboardPage() {
   const { user, logout } = useAuthStore();
 
+  const quickActions = [
+    { icon: ShoppingCart, label: 'Pesanan Baru', href: '/admin/orders/create' },
+    { icon: Users, label: 'Pelanggan', href: '/admin/customers' },
+    { icon: Package, label: 'Layanan', href: '/admin/services' },
+    { icon: Settings, label: 'Pengaturan', href: '/admin/settings' },
+  ];
+
   return (
     <div className="space-y-8">
-      {/* Welcome Section */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-            Dashboard
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-1">
-            Welcome back, {user?.name}!
-          </p>
+          <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
+          <p className="text-gray-600 mt-1">Selamat datang, {user?.name}!</p>
         </div>
         <Button variant="outline" onClick={logout}>
-          Logout
+          Keluar
         </Button>
       </div>
 
-      {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-center">
-              <div className="text-4xl mb-2">📊</div>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">0</p>
-              <p className="text-gray-600 dark:text-gray-400">Total Projects</p>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-center">
-              <div className="text-4xl mb-2">✅</div>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">0</p>
-              <p className="text-gray-600 dark:text-gray-400">Completed Tasks</p>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-center">
-              <div className="text-4xl mb-2">⏳</div>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">0</p>
-              <p className="text-gray-600 dark:text-gray-400">Pending Tasks</p>
-            </div>
-          </CardContent>
-        </Card>
+        {[
+          { emoji: '📊', value: '0', label: 'Total Pesanan' },
+          { emoji: '✅', value: '0', label: 'Selesai' },
+          { emoji: '⏳', value: '0', label: 'Diproses' },
+        ].map((stat, index) => (
+          <Card key={index}>
+            <CardContent className="pt-6">
+              <div className="text-center">
+                <div className="text-4xl mb-2">{stat.emoji}</div>
+                <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
+                <p className="text-gray-600">{stat.label}</p>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
       </div>
 
-      {/* User Profile Card */}
       <Card>
         <CardHeader>
-          <CardTitle>Profile Information</CardTitle>
-          <CardDescription>Your account details</CardDescription>
+          <CardTitle>Informasi Profil</CardTitle>
+          <CardDescription>Detail akun Anda</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex items-center space-x-6">
-            {/* Avatar */}
             <div className="w-20 h-20 bg-blue-600 rounded-full flex items-center justify-center">
               <span className="text-2xl font-bold text-white">
                 {user?.name ? getInitials(user.name) : 'U'}
               </span>
             </div>
-            
-            {/* User Info */}
             <div className="space-y-2">
               <div>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Name</p>
-                <p className="font-medium text-gray-900 dark:text-white">{user?.name}</p>
+                <p className="text-sm text-gray-500">Nama</p>
+                <p className="font-medium text-gray-900">{user?.name}</p>
               </div>
               <div>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Email</p>
-                <p className="font-medium text-gray-900 dark:text-white">{user?.email}</p>
+                <p className="text-sm text-gray-500">Email</p>
+                <p className="font-medium text-gray-900">{user?.email}</p>
               </div>
               <div>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Member Since</p>
-                <p className="font-medium text-gray-900 dark:text-white">
-                  {user?.created_at ? formatDate(user.created_at) : 'N/A'}
+                <p className="text-sm text-gray-500">Bergabung</p>
+                <p className="font-medium text-gray-900">
+                  {user?.created_at ? formatDate(user.created_at) : '-'}
                 </p>
               </div>
             </div>
@@ -93,30 +76,21 @@ function DashboardPage() {
         </CardContent>
       </Card>
 
-      {/* Quick Actions */}
       <Card>
         <CardHeader>
-          <CardTitle>Quick Actions</CardTitle>
-          <CardDescription>Common tasks and shortcuts</CardDescription>
+          <CardTitle>Aksi Cepat</CardTitle>
+          <CardDescription>Pintasan tugas umum</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <Button variant="outline" className="h-24 flex-col">
-              <span className="text-2xl mb-2">➕</span>
-              <span>New Project</span>
-            </Button>
-            <Button variant="outline" className="h-24 flex-col">
-              <span className="text-2xl mb-2">📝</span>
-              <span>Add Task</span>
-            </Button>
-            <Button variant="outline" className="h-24 flex-col">
-              <span className="text-2xl mb-2">👥</span>
-              <span>Team</span>
-            </Button>
-            <Button variant="outline" className="h-24 flex-col">
-              <span className="text-2xl mb-2">⚙️</span>
-              <span>Settings</span>
-            </Button>
+            {quickActions.map((action, index) => (
+              <Link key={index} to={action.href}>
+                <Button variant="outline" className="w-full h-24 flex-col gap-2">
+                  <action.icon className="w-6 h-6" />
+                  <span>{action.label}</span>
+                </Button>
+              </Link>
+            ))}
           </div>
         </CardContent>
       </Card>

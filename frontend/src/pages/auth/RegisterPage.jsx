@@ -1,29 +1,45 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/stores';
-import { Button, Input, Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter, Alert, AlertDescription } from '@/components/ui';
+import { 
+  Button, 
+  Input, 
+  Card, 
+  CardHeader, 
+  CardTitle, 
+  CardDescription, 
+  CardContent, 
+  CardFooter, 
+  Alert, 
+  AlertDescription 
+} from '@/components/ui';
 
-/**
- * Register Page
- */
+const EMAIL_REGEX = /\S+@\S+\.\S+/;
+const MIN_NAME_LENGTH = 2;
+const MIN_PASSWORD_LENGTH = 8;
+
+const INITIAL_FORM_DATA = {
+  name: '',
+  email: '',
+  password: '',
+  password_confirmation: '',
+};
+
 function RegisterPage() {
   const navigate = useNavigate();
   const { register, isLoading, error, clearError } = useAuthStore();
   
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    password: '',
-    password_confirmation: '',
-  });
+  const [formData, setFormData] = useState(INITIAL_FORM_DATA);
   const [formErrors, setFormErrors] = useState({});
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+    
     if (formErrors[name]) {
       setFormErrors((prev) => ({ ...prev, [name]: '' }));
     }
+    
     if (error) {
       clearError();
     }
@@ -33,27 +49,27 @@ function RegisterPage() {
     const errors = {};
     
     if (!formData.name) {
-      errors.name = 'Name is required';
-    } else if (formData.name.length < 2) {
-      errors.name = 'Name must be at least 2 characters';
+      errors.name = 'Nama wajib diisi';
+    } else if (formData.name.length < MIN_NAME_LENGTH) {
+      errors.name = `Nama minimal ${MIN_NAME_LENGTH} karakter`;
     }
     
     if (!formData.email) {
-      errors.email = 'Email is required';
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      errors.email = 'Please enter a valid email';
+      errors.email = 'Email wajib diisi';
+    } else if (!EMAIL_REGEX.test(formData.email)) {
+      errors.email = 'Format email tidak valid';
     }
     
     if (!formData.password) {
-      errors.password = 'Password is required';
-    } else if (formData.password.length < 8) {
-      errors.password = 'Password must be at least 8 characters';
+      errors.password = 'Password wajib diisi';
+    } else if (formData.password.length < MIN_PASSWORD_LENGTH) {
+      errors.password = `Password minimal ${MIN_PASSWORD_LENGTH} karakter`;
     }
     
     if (!formData.password_confirmation) {
-      errors.password_confirmation = 'Please confirm your password';
+      errors.password_confirmation = 'Konfirmasi password wajib diisi';
     } else if (formData.password !== formData.password_confirmation) {
-      errors.password_confirmation = 'Passwords do not match';
+      errors.password_confirmation = 'Password tidak sama';
     }
     
     setFormErrors(errors);
@@ -78,9 +94,10 @@ function RegisterPage() {
         <Link to="/" className="text-2xl font-bold text-blue-600 mb-4 inline-block">
           Simaul
         </Link>
-        <CardTitle>Create an Account</CardTitle>
-        <CardDescription>Get started with your free account</CardDescription>
+        <CardTitle>Buat Akun Baru</CardTitle>
+        <CardDescription>Daftar untuk memulai menggunakan Simaul</CardDescription>
       </CardHeader>
+      
       <form onSubmit={handleSubmit}>
         <CardContent className="space-y-4">
           {error && (
@@ -90,10 +107,10 @@ function RegisterPage() {
           )}
           
           <Input
-            label="Full Name"
+            label="Nama Lengkap"
             type="text"
             name="name"
-            placeholder="John Doe"
+            placeholder="Nama Anda"
             value={formData.name}
             onChange={handleChange}
             error={formErrors.name}
@@ -104,7 +121,7 @@ function RegisterPage() {
             label="Email"
             type="email"
             name="email"
-            placeholder="you@example.com"
+            placeholder="email@contoh.com"
             value={formData.email}
             onChange={handleChange}
             error={formErrors.email}
@@ -123,7 +140,7 @@ function RegisterPage() {
           />
           
           <Input
-            label="Confirm Password"
+            label="Konfirmasi Password"
             type="password"
             name="password_confirmation"
             placeholder="••••••••"
@@ -133,18 +150,19 @@ function RegisterPage() {
             disabled={isLoading}
           />
         </CardContent>
+        
         <CardFooter className="flex flex-col space-y-4">
           <Button
             type="submit"
             className="w-full"
             isLoading={isLoading}
           >
-            Create Account
+            Daftar
           </Button>
-          <p className="text-sm text-center text-gray-600 dark:text-gray-400">
-            Already have an account?{' '}
+          <p className="text-sm text-center text-gray-600">
+            Sudah punya akun?{' '}
             <Link to="/login" className="text-blue-600 hover:text-blue-700 font-medium">
-              Sign in
+              Masuk
             </Link>
           </p>
         </CardFooter>

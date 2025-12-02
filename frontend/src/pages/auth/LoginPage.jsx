@@ -1,29 +1,41 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/stores';
-import { Button, Input, Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter, Alert, AlertDescription } from '@/components/ui';
+import { 
+  Button, 
+  Input, 
+  Card, 
+  CardHeader, 
+  CardTitle, 
+  CardDescription, 
+  CardContent, 
+  CardFooter, 
+  Alert, 
+  AlertDescription 
+} from '@/components/ui';
 
-/**
- * Login Page
- */
+const EMAIL_REGEX = /\S+@\S+\.\S+/;
+
+const INITIAL_FORM_DATA = {
+  email: '',
+  password: '',
+};
+
 function LoginPage() {
   const navigate = useNavigate();
   const { login, isLoading, error, clearError } = useAuthStore();
   
-  const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-  });
+  const [formData, setFormData] = useState(INITIAL_FORM_DATA);
   const [formErrors, setFormErrors] = useState({});
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-    // Clear field error when user types
+    
     if (formErrors[name]) {
       setFormErrors((prev) => ({ ...prev, [name]: '' }));
     }
-    // Clear API error when user types
+    
     if (error) {
       clearError();
     }
@@ -31,14 +43,17 @@ function LoginPage() {
 
   const validateForm = () => {
     const errors = {};
+    
     if (!formData.email) {
-      errors.email = 'Email is required';
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      errors.email = 'Please enter a valid email';
+      errors.email = 'Email wajib diisi';
+    } else if (!EMAIL_REGEX.test(formData.email)) {
+      errors.email = 'Format email tidak valid';
     }
+    
     if (!formData.password) {
-      errors.password = 'Password is required';
+      errors.password = 'Password wajib diisi';
     }
+    
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -61,9 +76,10 @@ function LoginPage() {
         <Link to="/" className="text-2xl font-bold text-blue-600 mb-4 inline-block">
           Simaul
         </Link>
-        <CardTitle>Welcome Back</CardTitle>
-        <CardDescription>Sign in to your account</CardDescription>
+        <CardTitle>Selamat Datang</CardTitle>
+        <CardDescription>Masuk ke akun Anda</CardDescription>
       </CardHeader>
+      
       <form onSubmit={handleSubmit}>
         <CardContent className="space-y-4">
           {error && (
@@ -76,7 +92,7 @@ function LoginPage() {
             label="Email"
             type="email"
             name="email"
-            placeholder="you@example.com"
+            placeholder="email@contoh.com"
             value={formData.email}
             onChange={handleChange}
             error={formErrors.email}
@@ -94,18 +110,19 @@ function LoginPage() {
             disabled={isLoading}
           />
         </CardContent>
+        
         <CardFooter className="flex flex-col space-y-4">
           <Button
             type="submit"
             className="w-full"
             isLoading={isLoading}
           >
-            Sign In
+            Masuk
           </Button>
-          <p className="text-sm text-center text-gray-600 dark:text-gray-400">
-            Don&apos;t have an account?{' '}
+          <p className="text-sm text-center text-gray-600">
+            Belum punya akun?{' '}
             <Link to="/register" className="text-blue-600 hover:text-blue-700 font-medium">
-              Sign up
+              Daftar
             </Link>
           </p>
         </CardFooter>

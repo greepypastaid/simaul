@@ -1,12 +1,8 @@
 import { Outlet } from 'react-router-dom';
 
-/**
- * Auth Layout Component
- * Clean layout for authentication pages
- */
 function AuthLayout() {
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center px-4">
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
       <div className="w-full max-w-md">
         <Outlet />
       </div>

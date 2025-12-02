@@ -1,21 +1,17 @@
 import { Outlet } from 'react-router-dom';
 import Navbar from './Navbar';
 
-/**
- * Main Layout Component
- * Wraps pages with navbar and footer
- */
 function MainLayout() {
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-gray-50 flex flex-col">
       <Navbar />
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8">
         <Outlet />
       </main>
-      <footer className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 mt-auto">
+      <footer className="bg-white border-t border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <p className="text-center text-gray-500 dark:text-gray-400 text-sm">
-            © {new Date().getFullYear()} Simaul. All rights reserved.
+          <p className="text-center text-gray-500 text-sm">
+            © {new Date().getFullYear()} Simaul Laundry. All rights reserved.
           </p>
         </div>
       </footer>
